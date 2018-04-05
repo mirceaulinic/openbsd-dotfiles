@@ -2,6 +2,10 @@
 #
 # sh/ksh initialization
 
+
+xbacklight -set 20
+. $HOME/.kshrc
 PATH=$HOME/bin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/X11R6/bin:/usr/local/bin:/usr/local/sbin:/usr/games:.
 ENV=$HOME/.kshrc
-export PATH HOME TERM ENV
+EDITOR=$(which vi)
+export PATH HOME TERM ENV EDITOR
