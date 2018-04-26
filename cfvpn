@@ -1,0 +1,15 @@
+#/bin/sh
+
+FILE="$HOME/.netrc.json.gpg" 
+VPNHOST="lhr.vpn.cfops.it" 
+PW=$(gpg2 -qd $FILE | \
+    jq -r ".[] | select(.identity == \"mirucha\") | .data[] | \
+        select(.machine == \"vpn.cfops.it\") | .password") 
+echo -n "Enter your OTP: "
+read TOTP
+PW=${PW}${TOTP} 
+if [ -r /var/run/cfvpn.pid ]
+then
+	sudo kill $(cat /var/run/cfvpn.pid)
+fi
+echo $PW | sudo $(which openconnect) -b -u mirucha --passwd-on-stdin --pid-file /var/run/cfvpn.pid $VPNHOST
