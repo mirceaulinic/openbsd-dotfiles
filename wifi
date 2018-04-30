@@ -1,0 +1,20 @@
+#!/bin/sh
+
+WIF=${1:-"iwm0"}
+BECOME=$(which doas)
+
+# TODO: break if no :wheel user session exists
+# doesn't seem to work if we don't clear current nwid
+
+${BECOME} ifconfig ${WIF} down -nwid -wpakey
+
+for BSSID in $(${BECOME} ifconfig ${WIF} scan | \
+    grep bssid | \
+    sed -e 's/.* bssid \(.*\)$/\1/' -e 's/ .*$//' | \
+	sort | uniq); do
+    FILE=$(grep -H ${BSSID} /etc/wifi/hostname.${WIF}.* | cut -f1 -d":")
+    if [ ! -z ${FILE} ]; then
+        ${BECOME} ln -sf ${FILE} /etc/hostname.${WIF}
+        ${BECOME} sh /etc/netstart ${WIF}
+    fi
+done
